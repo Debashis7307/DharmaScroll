@@ -1,0 +1,784 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>DharmaScroll</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,400;100,700;125,800;125,900&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Yatra+One&family=Tiro+Devanagari+Sanskrit:ital@0;1&family=Tiro+Devanagari+Hindi&display=swap">
+<style>
+/* Layout: dark aged frame around a central column of parchment "plates"; neo-brutalist edges (thick ink borders, hard offset shadows, mono stamps). Single committed look, dark-first. */
+:root{
+  --bg:#150A07; --bg2:#22100B; --fg:#F3E7CF; --fg2:#C9B38E;
+  --paper:#F2E6CC; --paper2:#E6D4AE; --ink:#1A0F0A; --ink2:#4B3524;
+  --kesar:#E8782A; --kesar2:#F4A14E; --sindoor:#7A1E18; --gold:#D9B04C; --green:#5F7F3C; --red:#B8342B;
+  --disp:'Archivo',Impact,sans-serif; --body:'Instrument Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --skt:'Yatra One','Tiro Devanagari Sanskrit',serif; --skt2:'Tiro Devanagari Sanskrit','Tiro Devanagari Hindi',serif; --hi:'Tiro Devanagari Hindi','Tiro Devanagari Sanskrit',serif;
+  --b:3px solid var(--ink); --sh:7px 7px 0 var(--ink); --shd:7px 7px 0 #000;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+ background-image:radial-gradient(ellipse at 50% 0%,#2C150D 0%,var(--bg) 55%),repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 2px,transparent 2px 4px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--disp);font-stretch:125%;font-weight:900;line-height:.95;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h2{font-size:clamp(34px,5vw,60px);text-transform:uppercase}
+h3{font-size:clamp(20px,2.2vw,26px);font-stretch:100%;font-weight:700;line-height:1.1}
+p{margin:0}
+.mono{font-family:var(--mono)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--kesar2)}
+.stamp{display:inline-block;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border:var(--b);background:var(--gold);color:var(--ink);box-shadow:4px 4px 0 var(--ink);transform:rotate(-2deg)}
+.stamp.k{background:var(--kesar)}.stamp.p{background:var(--paper)}.stamp.g{background:#9BC06A}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--kesar);outline-offset:3px}
+
+/* nav */
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:3px solid var(--ink);box-shadow:0 3px 0 var(--gold)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:60px}
+.logo{font-family:var(--disp);font-stretch:125%;font-weight:900;font-size:22px;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.logo i{font-style:normal;font-family:var(--skt);color:var(--kesar);font-size:26px;line-height:1}
+nav ul{list-style:none;margin:0;padding:0;display:flex;gap:4px;flex-wrap:wrap}
+nav li a{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;padding:7px 10px;border:2px solid transparent}
+nav li a:hover{border-color:var(--gold);background:var(--bg2)}
+@media(max-width:760px){nav ul{display:none}}
+
+/* plates */
+section{padding-block:72px}
+.plate{background:var(--paper);color:var(--ink);border:var(--b);box-shadow:var(--shd);padding:clamp(20px,4vw,48px);position:relative}
+.plate.aged{background:radial-gradient(ellipse at 50% 30%,#F6EBD2 0%,#E9D7B2 70%,#D7BE8E 100%)}
+.plate .eyebrow{color:var(--sindoor)}
+.dark{background:var(--bg2);color:var(--fg);border:var(--b);box-shadow:var(--shd);padding:clamp(20px,4vw,40px)}
+.lede{font-size:clamp(17px,1.6vw,21px);max-width:62ch;line-height:1.5}
+.grid{display:grid;gap:22px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:900px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.grid>*{min-width:0}
+.sechead{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px;margin-bottom:34px}
+.sechead p{max-width:52ch;color:var(--fg2)}
+
+/* hero */
+.hero{padding-block:60px 80px;position:relative;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center}
+@media(max-width:900px){.hero .wrap{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(56px,9vw,124px);text-transform:uppercase;color:var(--fg)}
+.hero h1 span{display:block;color:var(--kesar);-webkit-text-stroke:0;}
+.hero h1 em{font-style:normal;color:transparent;-webkit-text-stroke:2px var(--gold)}
+.hero .sub{margin-top:22px;font-size:clamp(17px,1.8vw,22px);max-width:40ch;color:var(--fg2)}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.btn{font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;padding:14px 22px;border:var(--b);background:var(--kesar);color:var(--ink);box-shadow:var(--sh);transition:transform .12s,box-shadow .12s;cursor:pointer}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:9px 9px 0 var(--ink)}
+.btn:active{transform:translate(4px,4px);box-shadow:3px 3px 0 var(--ink)}
+.btn.o{background:var(--paper)}
+.hero-card{position:relative}
+.hero-card .plate{transform:rotate(1.5deg)}
+.hero-card .stamp{position:absolute;top:-16px;right:18px;z-index:2}
+.skt-big{font-family:var(--skt);font-size:clamp(26px,3.2vw,38px);line-height:1.5;color:var(--sindoor);text-align:center}
+.tr{font-family:var(--mono);font-size:13px;color:var(--ink2);text-align:center;margin-top:12px;line-height:1.7}
+.tr b{color:var(--kesar);font-weight:600}
+.mean{font-size:17px;text-align:center;margin-top:14px;line-height:1.5}
+.ref{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;text-align:center;color:var(--ink2);margin-bottom:12px}
+.ticker{margin-top:60px;border-block:var(--b);background:var(--gold);color:var(--ink);overflow:hidden;white-space:nowrap}
+.ticker div{display:inline-block;padding:10px 0;font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;animation:tick 40s linear infinite}
+.ticker span{padding:0 28px}
+@keyframes tick{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.ticker div{animation:none}}
+
+/* stats */
+.stat{border:var(--b);background:var(--paper);color:var(--ink);padding:20px;box-shadow:var(--shd)}
+.stat .n{font-family:var(--disp);font-stretch:125%;font-weight:900;font-size:clamp(40px,4.4vw,58px);line-height:1;color:var(--sindoor);font-variant-numeric:tabular-nums}
+.stat .l{font-size:14px;color:var(--ink2);margin-top:8px;line-height:1.35}
+
+/* features */
+.feat{background:var(--paper);color:var(--ink);border:var(--b);box-shadow:var(--shd);padding:26px;display:flex;flex-direction:column;gap:12px;transition:transform .15s}
+.feat:hover{transform:translate(-3px,-3px)}
+.feat .ic{width:52px;height:52px;border:var(--b);display:grid;place-items:center;font-size:26px;background:var(--kesar);box-shadow:4px 4px 0 var(--ink)}
+.feat h3{margin-top:4px}
+.feat p{color:var(--ink2);font-size:15px}
+.feat.big{grid-column:span 2;background:var(--sindoor);color:var(--fg)}
+.feat.big p{color:var(--fg2)}
+.feat.big .ic{background:var(--gold)}
+.feat.wide{grid-column:span 2}
+@media(max-width:560px){.feat.big,.feat.wide{grid-column:span 1}}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border:2px solid currentColor;display:inline-block}
+
+/* shloka gallery */
+.verse{background:var(--paper);color:var(--ink);border:var(--b);box-shadow:var(--shd);display:grid;grid-template-columns:1.1fr 1fr;min-width:0}
+@media(max-width:800px){.verse{grid-template-columns:1fr}}
+.verse .l{padding:clamp(22px,3vw,40px);background:radial-gradient(ellipse at 50% 30%,#F6EBD2 0%,#E9D7B2 70%,#D7BE8E 100%);border-right:var(--b);display:flex;flex-direction:column;justify-content:center}
+@media(max-width:800px){.verse .l{border-right:0;border-bottom:var(--b)}}
+.verse .r{padding:clamp(22px,3vw,36px);display:flex;flex-direction:column;gap:14px}
+.verse .skt{font-family:var(--skt2);font-size:clamp(22px,2.4vw,30px);line-height:1.6;color:var(--sindoor);text-align:center}
+.verse .pron{font-family:var(--mono);font-size:13px;line-height:1.8;text-align:center;margin-top:14px;color:var(--ink2)}
+.verse .pron b{color:var(--kesar);font-weight:600}
+.verse .hi{font-family:var(--hi);font-size:17px;text-align:center;margin-top:12px;color:var(--ink)}
+.kv{display:flex;flex-direction:column;gap:4px}
+.kv .k{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--sindoor)}
+.kv .v{font-size:15.5px;line-height:1.55}
+.verse .ex{border:var(--b);background:#FFF7E6;padding:14px 16px;box-shadow:4px 4px 0 var(--ink);font-size:15px;line-height:1.5}
+.verse .ex b{color:var(--sindoor)}
+.vgrid{display:grid;gap:34px}
+
+/* mann darpan demo */
+.demo{display:grid;grid-template-columns:1fr 1.1fr;gap:28px;align-items:start}
+@media(max-width:860px){.demo{grid-template-columns:1fr}}
+.moods{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.mood{font-family:var(--mono);font-size:13px;padding:10px 14px;border:var(--b);background:var(--paper);color:var(--ink);box-shadow:4px 4px 0 var(--ink);cursor:pointer;letter-spacing:.04em}
+.mood[aria-pressed="true"]{background:var(--kesar);transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.bigmic{width:120px;height:120px;border-radius:50%;border:var(--b);background:var(--kesar);display:grid;place-items:center;font-size:44px;box-shadow:var(--sh);margin:26px auto 10px;position:relative}
+.bigmic::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:3px dashed var(--gold);animation:spin 14s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.bigmic::after{animation:none}}
+.out{background:var(--paper);color:var(--ink);border:var(--b);box-shadow:var(--shd);padding:24px;display:flex;flex-direction:column;gap:14px;min-height:300px}
+.out .skt{font-family:var(--skt2);font-size:24px;line-height:1.55;color:var(--sindoor);text-align:center}
+.out .steps{display:grid;gap:8px}
+.out .steps div{border:2px solid var(--ink);padding:10px 12px;background:#FFF7E6;font-size:15px}
+.out .steps div b{font-family:var(--mono);color:var(--kesar);margin-right:6px}
+.sank{border:var(--b);background:var(--gold);padding:12px 14px;box-shadow:4px 4px 0 var(--ink);font-weight:600}
+.pipe{display:flex;flex-wrap:wrap;gap:0;margin-top:26px}
+.pipe div{flex:1 1 110px;border:var(--b);margin:-3px 0 0 -3px;padding:12px 10px;background:var(--paper);color:var(--ink);font-size:13px;line-height:1.35}
+.pipe div b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sindoor);margin-bottom:4px}
+.pipe div.x{background:var(--sindoor);color:var(--fg)}.pipe div.x b{color:var(--gold)}
+.pipe div.w{background:#F3C9C4}
+</style>
+<style>
+/* moksh */
+.ledger{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:800px){.ledger{grid-template-columns:1fr}}
+.ltab{border:var(--b);background:var(--paper);color:var(--ink);box-shadow:var(--shd)}
+.ltab h3{padding:14px 18px;border-bottom:var(--b);background:var(--gold);text-transform:uppercase;font-family:var(--disp);font-stretch:125%;font-weight:900;font-size:20px}
+.ltab h3.r{background:var(--red);color:#fff}
+.ltab table{width:100%;border-collapse:collapse;font-size:14.5px}
+.ltab td{padding:10px 14px;border-bottom:2px solid #D7C29B;vertical-align:top}
+.ltab tr:last-child td{border-bottom:0}
+.ltab td:last-child{font-family:var(--mono);font-weight:600;text-align:right;white-space:nowrap;width:1%}
+.plus{color:var(--green)}.minus{color:var(--red)}
+.levels{display:flex;gap:0;overflow-x:auto;margin-top:26px;padding-bottom:10px}
+.lv{flex:1 0 150px;border:var(--b);margin-left:-3px;padding:16px 14px;background:var(--paper);color:var(--ink);position:relative}
+.lv:first-child{margin-left:0}
+.lv .n{font-family:var(--disp);font-stretch:125%;font-weight:900;font-size:34px;line-height:1;color:var(--sindoor)}
+.lv .t{font-weight:600;margin-top:6px}
+.lv .m{font-family:var(--mono);font-size:12px;color:var(--ink2);margin-top:4px}
+.lv.on{background:var(--kesar)}
+.rules{display:grid;gap:10px;margin-top:22px}
+.rules div{border:var(--b);background:#DCE8C8;color:var(--ink);padding:12px 16px;font-size:15px;box-shadow:4px 4px 0 var(--ink)}
+.rules div b{font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;font-size:12px;color:var(--green);margin-right:8px}
+
+/* wireframes */
+.tabs{display:flex;flex-wrap:wrap;gap:0;margin-bottom:30px}
+.tabs button{font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;padding:12px 18px;border:var(--b);margin:-3px 0 0 -3px;background:var(--paper);color:var(--ink);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--kesar);box-shadow:inset 0 -5px 0 var(--ink)}
+.flow{display:none}.flow.on{display:block}
+.phones{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:28px;justify-items:center}
+.wf{display:flex;flex-direction:column;align-items:center;width:100%;max-width:260px}
+.phone{width:100%;aspect-ratio:9/19;background:#0E0705;border:var(--b);border-radius:28px;padding:7px;box-shadow:var(--shd)}
+.scr{width:100%;height:100%;border-radius:22px;background:var(--paper);color:var(--ink);overflow:hidden;position:relative;display:flex;flex-direction:column;font-size:10.5px;line-height:1.35;font-family:var(--body)}
+.scr.night{background:linear-gradient(180deg,#3B1A12,#1F0F0A);color:#F3E6CF}
+.scr.parch{background:radial-gradient(ellipse at 50% 40%,#F7EBD0 0%,#E6CF9F 75%,#D2B47A 100%)}
+.sb{height:22px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;font-size:9px;font-weight:600;flex-shrink:0;font-family:var(--mono)}
+.notch{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:54px;height:12px;background:#0E0705;border-radius:8px}
+.bd{flex:1;padding:6px 11px;display:flex;flex-direction:column;gap:6px;overflow:hidden;position:relative}
+.nv{height:38px;border-top:2px solid #C9B38E;display:flex;justify-content:space-around;align-items:center;background:#FBF6EA;flex-shrink:0}
+.night .nv{background:#26120C;border-top-color:#4A2A1E}
+.nv span{display:flex;flex-direction:column;align-items:center;font-size:7.5px;color:#8A7559;gap:2px;font-family:var(--mono)}
+.nv span i{width:11px;height:11px;border-radius:50%;border:2px solid currentColor;display:block}
+.nv span.on{color:var(--kesar);font-weight:600}.nv span.on i{background:var(--kesar)}
+.nv span.mc i{width:24px;height:24px;background:var(--sindoor);border:2px solid var(--ink);margin-top:-14px}
+.tb{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:600}
+.ch{display:inline-block;padding:2px 7px;border:1.5px solid #C9B38E;background:#FBF6EA;font-size:9px;margin:2px 1px;border-radius:9px;color:#4B3524}
+.ch.on{background:var(--kesar);color:#fff;border-color:var(--kesar)}
+.bt{background:var(--sindoor);color:#fff;text-align:center;padding:7px;font-weight:600;font-size:10px;border-radius:7px}
+.bt.s{background:var(--kesar)}.bt.o{background:transparent;border:1.5px solid var(--sindoor);color:var(--sindoor)}
+.wc{background:#FBF6EA;border:1.5px solid #D7C29B;border-radius:7px;padding:6px 8px}
+.wk{font-family:var(--skt2);font-size:13.5px;line-height:1.55;color:var(--sindoor);text-align:center}
+.wt{font-style:italic;color:#4B3524;text-align:center;font-size:9.5px}
+.wl{font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:15px;line-height:1.1;color:var(--sindoor)}
+.mp{display:inline-flex;align-items:center;gap:3px;background:var(--sindoor);color:var(--gold);border-radius:9px;padding:1px 7px;font-size:9px;font-weight:700;font-family:var(--mono)}
+.bar{height:5px;border-radius:3px;background:#E6D4AE;overflow:hidden}.bar i{display:block;height:100%;background:var(--kesar)}
+.rail{position:absolute;right:6px;bottom:8px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.rail span{display:flex;flex-direction:column;align-items:center;font-size:7.5px;color:#4B3524}
+.rail span i{width:16px;height:16px;border-radius:50%;background:#FBF6EA;border:1.5px solid #C9B38E;display:block}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#FBF6EA;border-radius:14px 14px 0 0;border-top:2px solid #C9B38E;padding:8px 11px;box-shadow:0 -4px 10px rgba(60,40,10,.2)}
+.grab{width:32px;height:3px;background:#C9B38E;border-radius:2px;margin:0 auto 6px}
+.cap{margin-top:14px;text-align:center;font-size:14px;line-height:1.35;color:var(--fg2)}
+.cap b{display:block;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:16px;color:var(--fg);margin-bottom:3px}
+.cap b::before{content:attr(data-n) " · ";color:var(--kesar);font-family:var(--mono);font-weight:500}
+
+/* market */
+.chart{border:var(--b);background:var(--paper);color:var(--ink);box-shadow:var(--shd);padding:22px}
+.chart h3{margin-bottom:4px}
+.chart .sub{font-size:13px;color:var(--ink2);margin-bottom:14px}
+.chart svg{width:100%;height:auto;display:block}
+.chart svg text{font-family:var(--mono);font-size:11px;fill:var(--ink)}
+.comp{border:var(--b);background:var(--paper);color:var(--ink);box-shadow:var(--shd);overflow-x:auto}
+.comp table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+.comp th{background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:12px 14px;text-align:left}
+.comp th.us{background:var(--kesar);color:var(--ink)}
+.comp td{padding:11px 14px;border-bottom:2px solid #D7C29B;text-align:center}
+.comp td:first-child{text-align:left;font-weight:600}
+.comp td.us{background:#FBE9D4;font-weight:700}
+.comp tr:last-child td{border-bottom:0}
+.y{color:var(--green);font-weight:700}.n{color:var(--red)}
+
+/* arch */
+.arch svg{width:100%;height:auto;display:block}
+.arch svg text{font-family:var(--mono);font-size:11px}
+.layer{border:var(--b);margin-top:-3px;padding:16px 18px;background:var(--paper);color:var(--ink);display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:start}
+@media(max-width:600px){.layer{grid-template-columns:1fr}}
+.layer:first-child{margin-top:0}
+.layer .k{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--sindoor);padding-top:6px}
+.layer .boxes{display:flex;flex-wrap:wrap;gap:8px}
+.layer .boxes span{border:2px solid var(--ink);padding:6px 10px;font-size:13.5px;background:#FFF7E6;box-shadow:3px 3px 0 var(--ink)}
+.layer .boxes span.hot{background:var(--kesar)}
+.layer.d{background:var(--sindoor);color:var(--fg)}.layer.d .k{color:var(--gold)}.layer.d .boxes span{background:#9A2E26;border-color:#000;color:#fff;box-shadow:3px 3px 0 #000}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+@media(max-width:800px){.road{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.road{grid-template-columns:1fr}}
+.ph{border:var(--b);margin:-3px 0 0 -3px;padding:20px;background:var(--paper);color:var(--ink)}
+.ph .w{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--sindoor)}
+.ph h3{margin:6px 0 10px}
+.ph ul{margin:0;padding-left:18px;font-size:14px;color:var(--ink2);line-height:1.5}
+.ph.on{background:var(--kesar)}.ph.on .w,.ph.on ul{color:var(--ink)}
+
+/* pricing */
+.price{border:var(--b);background:var(--paper);color:var(--ink);box-shadow:var(--shd);padding:26px;display:flex;flex-direction:column;gap:10px}
+.price.hot{background:var(--sindoor);color:var(--fg);transform:translateY(-10px)}
+.price .amt{font-family:var(--disp);font-stretch:125%;font-weight:900;font-size:46px;line-height:1}
+.price .amt small{font-family:var(--mono);font-size:13px;font-weight:500}
+.price ul{margin:8px 0 0;padding-left:18px;font-size:14.5px;line-height:1.6}
+.price.hot ul{color:var(--fg2)}
+
+footer{padding-block:60px 80px;border-top:var(--b);margin-top:40px}
+footer .skt{font-family:var(--skt);font-size:clamp(22px,3vw,34px);color:var(--kesar);line-height:1.5}
+footer .wrap{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:end}
+@media(max-width:760px){footer .wrap{grid-template-columns:1fr}}
+footer small{font-family:var(--mono);font-size:12px;color:var(--fg2);line-height:1.8;display:block}
+.srcs{columns:2;column-gap:28px;font-size:12.5px;font-family:var(--mono);line-height:1.7;color:var(--fg2)}
+@media(max-width:600px){.srcs{columns:1}}
+.srcs a{text-decoration-color:var(--gold)}
+</style>
+
+<nav><div class="wrap">
+  <div class="logo"><i>ॐ</i>DharmaScroll</div>
+  <ul><li><a href="#features">Features</a></li><li><a href="#shlokas">Shlokas</a></li><li><a href="#mann">Mann Darpan</a></li><li><a href="#moksh">Moksh Points</a></li><li><a href="#wireframes">Wireframes</a></li><li><a href="#market">Market</a></li><li><a href="#arch">Architecture</a></li><li><a href="#plan">Plan</a></li></ul>
+  <a class="btn" href="#wireframes" style="padding:9px 14px;font-size:11px">See the app</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div>
+    <span class="stamp">Product blueprint · v1.0</span>
+    <h1 style="margin-top:22px">Scroll<span>less.</span><em>Live more.</em></h1>
+    <p class="sub">A Bhagavad Gita companion for Bharat. Swipe shlokas instead of reels, speak your day into the mic and get the verse that fits, and earn Moksh Points for actually living it.</p>
+    <div class="cta"><a class="btn" href="#mann">Try Mann Darpan</a><a class="btn o" href="#wireframes">24 wireframes</a></div>
+    <div class="mono" style="margin-top:28px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg2)">iOS · Android · Hindi · English · Hinglish</div>
+  </div>
+  <div class="hero-card">
+    <span class="stamp k">Adhyay 2 · 47</span>
+    <div class="plate aged">
+      <div class="ref">Bhagavad Gita · Karma Yoga</div>
+      <div class="skt-big">कर्मण्येवाधिकारस्ते<br>मा फलेषु कदाचन।<br>मा कर्मफलहेतुर्भूर्<br>मा ते सङ्गोऽस्त्वकर्मणि॥</div>
+      <div class="tr"><b>Karmanye</b> vaadhikaaraste, <b>maa phaleshu</b> kadaachana,<br><b>maa karma-phala-hetur</b> bhoor, maa te sango'stva <b>akarmani</b></div>
+      <p class="mean">You have a right to your work, never to its results. Don't work only for the reward, and don't stop working either.</p>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:18px;flex-wrap:wrap"><span class="tag">▶ Chant</span><span class="tag">♡ Save</span><span class="tag">↗ Share</span><span class="tag" style="background:var(--kesar)">Tap to go deeper</span></div>
+    </div>
+  </div>
+</div>
+<div class="ticker"><div><span>700 shlokas</span>◆<span>Swipe feed</span>◆<span>Voice to shloka in 4 seconds</span>◆<span>Moksh Points</span>◆<span>18-day Gita Yatra</span>◆<span>Hinglish first</span>◆<span>Zero ads, ever</span>◆<span>700 shlokas</span>◆<span>Swipe feed</span>◆<span>Voice to shloka in 4 seconds</span>◆<span>Moksh Points</span>◆<span>18-day Gita Yatra</span>◆<span>Hinglish first</span>◆<span>Zero ads, ever</span>◆</div></div>
+</header>
+
+<section id="why"><div class="wrap">
+  <div class="sechead"><div><div class="eyebrow">The problem we are solving</div><h2>Your thumb already knows the gesture</h2></div><p>People swipe for hours and feel worse after. The Christian world already proved the swap works. Nobody has built it for the Gita, with a game that rewards reflection and a voice that answers your actual day.</p></div>
+  <div class="grid g4">
+    <div class="stat"><div class="n" data-count="58.6">58.6</div><div class="l">billion dollar Indian faith market (2023), growing ~8.8% a year</div></div>
+    <div class="stat"><div class="n" data-count="60" data-suf="%">60%</div><div class="l">MAU growth of India's top 10 religious apps in 2025</div></div>
+    <div class="stat"><div class="n" data-count="40" data-pre="$" data-suf="M">$40M</div><div class="l">Hallow's estimated 2025 net revenue. People pay for faith habits</div></div>
+    <div class="stat"><div class="n" data-count="0">0</div><div class="l">gamified, scroll-format Gita apps with real traction. That is the gap</div></div>
+  </div>
+</div></section>
+
+<section id="features"><div class="wrap">
+  <div class="sechead"><div><div class="eyebrow">Key features</div><h2>Five tabs. One daily ritual.</h2></div><p>The mic sits in the centre of the tab bar because sharing your day is the signature act. Everything else feeds it or rewards it.</p></div>
+  <div class="grid g3">
+    <div class="feat big"><div class="ic">🎙</div><span class="tag">Signature</span><h3>Mann Darpan: speak your day, get your shloka</h3><p>Hold the mic. Talk in Hindi, English or Hinglish about a bad review, a breakup, exam panic, or a win you want to stay grounded about. In about 4 seconds you hear the one shloka that fits, why it fits, and three small things to do in the next 24 hours.</p></div>
+    <div class="feat"><div class="ic">↑</div><h3>Shloka Feed</h3><p>Full-screen vertical swipe through all 700 verses. Sanskrit, pronunciation, Hindi and English meaning, chant audio, illustrated parchment backgrounds.</p></div>
+    <div class="feat"><div class="ic">◎</div><h3>Tap to go deeper</h3><p>Three tabs on every card: Shabdarth (word by word), Katha (who said it to whom, and why), Jeevan (what it means for your Monday).</p></div>
+    <div class="feat"><div class="ic">✓</div><h3>Checkpoint cards</h3><p>Every 7 swipes, one quick quiz or reflection card. This is what turns a scroll into learning and where most feed points come from.</p></div>
+    <div class="feat"><div class="ic">◉</div><h3>Moksh Points</h3><p>Earn for reading, reflecting, finishing lessons and keeping promises. Lose for speed-scrolling and broken commitments, never for a bad mood.</p></div>
+    <div class="feat"><div class="ic">✦</div><h3>Daily Sankalp</h3><p>One small promise from today's lesson ("speak calmly at home tonight"). Evening check-in: done, partly, not today. Honesty always pays.</p></div>
+    <div class="feat"><div class="ic">🛕</div><h3>Gita Yatra</h3><p>18 chapters as a winding path, like the 18 days of Kurukshetra. Short lessons, quizzes, chapter badges, seasonal challenges on Gita Jayanti.</p></div>
+    <div class="feat"><div class="ic">👥</div><h3>Sangha</h3><p>Weekly leagues of 30, family groups with a shared streak flame, and a Sakha (friend) you can nudge when they miss a day.</p></div>
+    <div class="feat wide"><div class="ic">↗</div><h3>Share cards</h3><p>Auto-designed parchment cards for Instagram Story and WhatsApp Status. The main growth loop, with a deep link back to the verse.</p></div>
+  </div>
+</div></section>
+<section id="shlokas"><div class="wrap">
+  <div class="sechead"><div><div class="eyebrow">How a shloka reads inside the app</div><h2>Sanskrit, said simply</h2></div><p>Every verse gets the original, an English-spelled pronunciation you can actually say out loud, a plain meaning, and one real-life situation where it applies.</p></div>
+  <div class="vgrid">
+
+    <div class="verse">
+      <div class="l"><div class="ref">Adhyay 2 · Shloka 47 · Karma Yoga</div>
+        <div class="skt">कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।<br>मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥</div>
+        <div class="pron"><b>Kar-man-ye</b> vaa-dhi-kaa-ras-te · <b>maa pha-le-shu</b> ka-daa-cha-na<br><b>maa kar-ma-pha-la</b> he-tur bhoor · maa te san-go'stva <b>a-kar-ma-ni</b></div>
+        <div class="hi">तुम्हारा अधिकार सिर्फ़ कर्म पर है, उसके फल पर कभी नहीं।</div></div>
+      <div class="r">
+        <div class="kv"><div class="k">In simple words</div><div class="v">Do the work in front of you with full effort. The result is not fully in your hands, so don't tie your peace to it. And don't use that as an excuse to stop working.</div></div>
+        <div class="kv"><div class="k">Katha · who is speaking</div><div class="v">Krishna to Arjuna, on the battlefield, right after Arjuna says he'd rather not fight than face the outcome.</div></div>
+        <div class="ex"><b>Real life:</b> You submitted the assignment, pitched the client, sat the interview. The nervous refreshing of your inbox is the "phala" part. The shloka says: you've done your bit, now put the phone down.</div>
+      </div>
+    </div>
+
+    <div class="verse">
+      <div class="l"><div class="ref">Adhyay 3 · Shloka 21 · Karma Yoga</div>
+        <div class="skt">यद्यदाचरति श्रेष्ठस्तत्तदेवेतरो जनः।<br>स यत्प्रमाणं कुरुते लोकस्तदनुवर्तते॥</div>
+        <div class="pron"><b>Yad-yad</b> aa-cha-ra-ti <b>shresh-thas</b> · tat-tad e-ve-ta-ro ja-nah<br>sa yat <b>pra-maa-nam</b> ku-ru-te · lo-kas tad a-nu-var-ta-te</div>
+        <div class="hi">श्रेष्ठ व्यक्ति जैसा करता है, बाकी लोग वैसा ही करते हैं।</div></div>
+      <div class="r">
+        <div class="kv"><div class="k">In simple words</div><div class="v">People copy what leaders do, not what they say. Whatever standard you set, others around you follow it.</div></div>
+        <div class="kv"><div class="k">Katha</div><div class="v">Krishna points to King Janaka, who kept doing his duty after enlightenment, because the kingdom was watching.</div></div>
+        <div class="ex"><b>Real life:</b> Your younger cousin copies how you treat your phone at dinner, how you talk to Mummy, how you handle a loss. You are already someone's "shreshtha". Pick one habit today you'd be proud to see copied.</div>
+      </div>
+    </div>
+
+    <div class="verse">
+      <div class="l"><div class="ref">Adhyay 6 · Shloka 5 · Dhyana Yoga</div>
+        <div class="skt">उद्धरेदात्मनात्मानं नात्मानमवसादयेत्।<br>आत्मैव ह्यात्मनो बन्धुरात्मैव रिपुरात्मनः॥</div>
+        <div class="pron"><b>Ud-dha-red</b> aat-ma-naat-maa-nam · naat-maa-nam a-va-saa-da-yet<br><b>aat-mai-va</b> hyaat-ma-no ban-dhur · aat-mai-va ri-pur aat-ma-nah</div>
+        <div class="hi">अपने आप को खुद उठाओ, खुद को गिरने मत दो। तुम ही अपने मित्र हो, तुम ही अपने शत्रु।</div></div>
+      <div class="r">
+        <div class="kv"><div class="k">In simple words</div><div class="v">Lift yourself up with your own mind. Don't let yourself sink. The same mind can be your best friend or your worst enemy, depending on how you train it.</div></div>
+        <div class="kv"><div class="k">Katha</div><div class="v">Opening of the chapter on meditation. Before any technique, Krishna says the first job is to stop being your own saboteur.</div></div>
+        <div class="ex"><b>Real life:</b> 1 am, scrolling, the voice says "everyone is ahead of you". That voice is the ripu (enemy). The bandhu (friend) is the one that says "close the app, sleep, 5 shlokas tomorrow". Same mind. You choose which one gets the mic.</div>
+      </div>
+    </div>
+
+    <div class="verse">
+      <div class="l"><div class="ref">Adhyay 2 · Shloka 48 · Sankhya Yoga</div>
+        <div class="skt">योगस्थः कुरु कर्माणि सङ्गं त्यक्त्वा धनञ्जय।<br>सिद्ध्यसिद्ध्योः समो भूत्वा समत्वं योग उच्यते॥</div>
+        <div class="pron"><b>Yo-gas-thah</b> ku-ru kar-maa-ni · san-gam tyak-tvaa dha-nan-ja-ya<br>sid-dhya-sid-dhyoh <b>sa-mo</b> bhoot-vaa · <b>sa-mat-vam</b> yo-ga uch-ya-te</div>
+        <div class="hi">सफलता और असफलता में एक जैसा रहना, यही योग है।</div></div>
+      <div class="r">
+        <div class="kv"><div class="k">In simple words</div><div class="v">Stay steady whether it works out or not. That evenness of mind is what "yoga" actually means.</div></div>
+        <div class="kv"><div class="k">Why it's in the app</div><div class="v">This is the verse Mann Darpan serves on <i>good</i> days. Joy gets celebrated, then gently grounded, so the next bad day doesn't crash as hard.</div></div>
+        <div class="ex"><b>Real life:</b> You cleared the DSA round. Enjoy it fully tonight. Then remember the same you who cleared it also failed two before. Samatvam means the win doesn't become your identity any more than the losses did.</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section id="mann"><div class="wrap">
+  <div class="sechead"><div><div class="eyebrow">Interactive demo</div><h2>Mann Darpan</h2></div><p>"Mirror of the mind". Pick a mood below to see what the app returns. In the real app you just hold the mic and talk; this demo uses four pre-built examples.</p></div>
+  <div class="demo">
+    <div class="dark">
+      <div class="eyebrow">Aaj ka din kaisa tha?</div>
+      <p style="margin-top:8px;color:var(--fg2)">Share a worry, a win, or anything in between.</p>
+      <div class="moods" role="group" aria-label="Pick a mood">
+        <button class="mood" data-m="hurt" aria-pressed="true">😤 Felt unappreciated</button>
+        <button class="mood" data-m="anx" aria-pressed="false">😟 Exam / future anxiety</button>
+        <button class="mood" data-m="low" aria-pressed="false">😔 Comparing myself</button>
+        <button class="mood" data-m="joy" aria-pressed="false">😊 Big win today</button>
+      </div>
+      <div class="bigmic" aria-hidden="true">🎙</div>
+      <p class="mono" style="text-align:center;font-size:12px;color:var(--fg2)">HOLD TO SPEAK · HINDI / ENGLISH / HINGLISH</p>
+      <div style="margin-top:22px;border:2px dashed var(--gold);padding:12px 14px;font-size:14px;color:var(--fg2)" id="said"></div>
+    </div>
+    <div class="out" id="out" aria-live="polite"></div>
+  </div>
+  <div class="pipe" aria-label="Pipeline">
+    <div><b>1 Speak</b>Streaming audio, any Indian language</div>
+    <div><b>2 Transcribe</b>Sarvam Saaras v3, handles Hinglish</div>
+    <div class="w"><b>3 Safety gate</b>Crisis, abuse, medical classifier</div>
+    <div><b>4 Understand</b>Emotion + situation tags as JSON</div>
+    <div><b>5 Retrieve</b>Tag filter + vector search over 700 verses</div>
+    <div class="x"><b>6 Compose</b>LLM explains only the verse it is handed</div>
+    <div class="w"><b>7 Verify</b>Citation check, output filter</div>
+    <div><b>8 Act</b>3 actions + Sankalp + journal</div>
+  </div>
+  <p style="margin-top:18px;max-width:70ch;color:var(--fg2);font-size:15px">The model never picks a verse from memory and never speaks as Krishna. It only explains a verse our hand-tagged index retrieves. That one rule is what the 2023 GitaGPT bots were missing when they told users killing was fine if it was their dharma.</p>
+</div></section>
+
+<section id="moksh"><div class="wrap">
+  <div class="sechead"><div><div class="eyebrow">Gamification economy</div><h2>Moksh Points</h2></div><p>One currency, simple rules. Depth (reflection, lessons, kept promises) pays far more than volume (swipes). Deductions target gaming and broken commitments, never sadness.</p></div>
+  <div class="ledger">
+    <div class="ltab"><h3>How you earn</h3><table>
+      <tr><td>Read a shloka (6 s or audio played)</td><td class="plus">+2 · cap 20/day</td></tr>
+      <tr><td>Open Katha or Jeevan tab</td><td class="plus">+3</td></tr>
+      <tr><td>Checkpoint card correct</td><td class="plus">+5</td></tr>
+      <tr><td>Finish a Yatra lesson · chapter</td><td class="plus">+20 · +100</td></tr>
+      <tr><td>Mann Darpan entry (any mood)</td><td class="plus">+15</td></tr>
+      <tr><td>Sankalp kept · partly kept</td><td class="plus">+25 · +10</td></tr>
+      <tr><td>Daily goal (Nitya Path) met</td><td class="plus">+15</td></tr>
+      <tr><td>Streak 7 · 30 · 108 · 365 days</td><td class="plus">+50 · 150 · 500 · 1008</td></tr>
+      <tr><td>Friend you invited completes day 1</td><td class="plus">+50</td></tr>
+    </table></div>
+    <div class="ltab"><h3 class="r">How you lose</h3><table>
+      <tr><td><b>Speed-scroll:</b> 5 cards under 2 s each pauses feed points 10 min and shows a "slow down" card</td><td>earn 0</td></tr>
+      <tr><td><b>Silent Sankalp:</b> promised in the morning, no check-in by midnight</td><td class="minus">−10</td></tr>
+      <tr><td><b>Abandoned Yatra challenge</b> (2 missed days after opting in)</td><td class="minus">−30</td></tr>
+      <tr><td><b>Inactivity decay</b> after 3 days, never below your level floor</td><td class="minus">−2%/day</td></tr>
+      <tr><td><b>Quiz guessing:</b> 3 wrong answers in under 3 s each</td><td class="minus">−5</td></tr>
+      <tr><td><b>Abuse:</b> spam, gibberish recordings, share-card misuse</td><td class="minus">−50 to reset</td></tr>
+      <tr><td><b>Streak break</b> (no Vishram day left)</td><td>streak 0, MP kept</td></tr>
+    </table></div>
+  </div>
+  <div class="levels" aria-label="Levels">
+    <div class="lv"><div class="n">1</div><div class="t">Jigyasu</div><div class="m">the curious · 0 MP</div></div>
+    <div class="lv on"><div class="n">2</div><div class="t">Shravak</div><div class="m">the listener · 300</div></div>
+    <div class="lv"><div class="n">3</div><div class="t">Sadhak</div><div class="m">practitioner · 1,200</div></div>
+    <div class="lv"><div class="n">4</div><div class="t">Karma Yogi</div><div class="m">acts unattached · 3,500</div></div>
+    <div class="lv"><div class="n">5</div><div class="t">Bhakta</div><div class="m">the devoted · 8,000</div></div>
+    <div class="lv"><div class="n">6</div><div class="t">Gyani</div><div class="m">the knower · 16,000</div></div>
+    <div class="lv"><div class="n">7</div><div class="t">Sthitaprajna</div><div class="m">steady in wisdom · 30,000</div></div>
+  </div>
+  <div class="rules">
+    <div><b>Rule 1</b>Never deduct for mood, sadness, or what a user shares. Sharing pain earns the same as sharing joy.</div>
+    <div><b>Rule 2</b>Never reward length or intensity of misery, so nobody fakes suffering for points.</div>
+    <div><b>Rule 3</b>An honest "not today" check-in costs 0. Honesty always beats silence.</div>
+    <div><b>Rule 4</b>Two free Vishram (rest) days a month, plus one earned per 7-day streak. Leagues count only depth points, so swiping cannot win them.</div>
+  </div>
+</div></section>
+<section id="wireframes"><div class="wrap">
+  <div class="sechead"><div><div class="eyebrow">End-to-end wireframes</div><h2>The whole app, screen by screen</h2></div><p>24 screens across four flows. Parchment for reading, night mode for the intimate Mann Darpan moments.</p></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-f="f1">A · Onboarding</button>
+    <button role="tab" aria-selected="false" data-f="f2">B · Feed &amp; daily loop</button>
+    <button role="tab" aria-selected="false" data-f="f3">C · Mann Darpan</button>
+    <button role="tab" aria-selected="false" data-f="f4">D · Yatra, Points, Sangha, Pro</button>
+  </div>
+
+  <div class="flow on" id="f1"><div class="phones">
+    <div class="wf"><div class="phone"><div class="scr parch"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd" style="align-items:center;justify-content:center;text-align:center">
+      <div style="font-family:var(--skt);font-size:54px;color:var(--kesar);line-height:1">ॐ</div><div class="wl" style="font-size:24px;margin-top:6px">DharmaScroll</div><div class="wt">Scroll less. Live more.</div>
+      <div class="wk" style="margin-top:22px;font-size:12px">योगः कर्मसु कौशलम्</div><div style="font-size:8px;color:#4B3524">Yoga is skill in action · 2.50</div>
+      <div style="position:absolute;bottom:22px;left:14px;right:14px"><div class="bt s">Shuru karein · Begin</div><div style="font-size:8px;margin-top:5px;color:#4B3524">No sign-up needed</div></div></div></div></div>
+      <div class="cap"><b data-n="01">Splash</b>Parchment, Om, one line of Gita. Guest by default.</div></div>
+    <div class="wf"><div class="phone"><div class="scr"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div style="font-size:8px;color:#8A7559">Step 1 of 3</div><div class="bar"><i style="width:33%"></i></div>
+      <div class="wl" style="margin-top:8px">Kis bhasha mein padhein?</div><div class="wt" style="text-align:left">Choose your reading language</div>
+      <div class="wc" style="border-color:var(--kesar);display:flex;justify-content:space-between"><b>हिन्दी + संस्कृत</b><span style="color:var(--kesar)">●</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><b>English + Sanskrit</b><span>○</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><b>Hinglish (both)</b><span>○</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span>मराठी · বাংলা · தமிழ் …</span><span>›</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span>Show pronunciation</span><span class="ch on">ON</span></div>
+      <div class="bt s" style="margin-top:auto">Aage · Next</div></div></div></div>
+      <div class="cap"><b data-n="02">Language</b>Script and translation set once, editable later.</div></div>
+    <div class="wf"><div class="phone"><div class="scr"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div style="font-size:8px;color:#8A7559">Step 2 of 3</div><div class="bar"><i style="width:66%"></i></div>
+      <div class="wl" style="margin-top:8px">What brings you here?</div><div class="wt" style="text-align:left">Pick any. We'll tune your feed.</div>
+      <div><span class="ch on">Less phone time</span><span class="ch">Stress &amp; anxiety</span><span class="ch on">Finish the Gita</span><span class="ch">Anger</span><span class="ch">Focus for exams</span><span class="ch on">Career confusion</span><span class="ch">Relationships</span><span class="ch">Grief</span><span class="ch">Teach my kids</span></div>
+      <div class="wc" style="margin-top:6px"><b>How familiar are you with the Gita?</b><div style="margin-top:4px"><span class="ch">New</span><span class="ch on">Know a few</span><span class="ch">Studied it</span></div></div>
+      <div class="bt s" style="margin-top:auto">Aage · Next</div></div></div></div>
+      <div class="cap"><b data-n="03">Intent</b>Seeds the For You feed and Mann Darpan context.</div></div>
+    <div class="wf"><div class="phone"><div class="scr"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div style="font-size:8px;color:#8A7559">Step 3 of 3</div><div class="bar"><i style="width:100%"></i></div>
+      <div class="wl" style="margin-top:8px">Your Nitya Path</div><div class="wt" style="text-align:left">A small daily promise you can keep</div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span>5 min · <b>Casual</b></span><span>○</span></div>
+      <div class="wc" style="border-color:var(--kesar);display:flex;justify-content:space-between"><span>10 min · <b>Regular</b></span><span style="color:var(--kesar)">●</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span>20 min · <b>Serious</b></span><span>○</span></div>
+      <div class="wc"><b>Remind me at</b><div style="margin-top:4px"><span class="ch on">6:30 am</span><span class="ch">9:00 pm</span><span class="ch">+ custom</span></div></div>
+      <div style="font-size:8px;color:#4B3524">Includes 2 free Vishram (rest) days every month.</div>
+      <div class="bt s" style="margin-top:auto">Start my first shloka</div></div></div></div>
+      <div class="cap"><b data-n="04">Daily goal</b>Commitment framed as a sankalp, with a reminder time.</div></div>
+    <div class="wf"><div class="phone"><div class="scr parch"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;opacity:.35"><div class="wk">कर्मण्येवाधिकारस्ते…</div></div>
+      <div class="sheet" style="padding-bottom:16px"><div class="grab"></div><div style="text-align:center"><span class="mp">◉ 10 MP</span></div>
+      <div class="wl" style="text-align:center;margin-top:6px">Save your Moksh Points</div><div class="wt">and your saved shlokas, on any phone</div>
+      <div class="wc" style="margin-top:8px">+91 &nbsp;|&nbsp; <span style="color:#8A7559">98xxx xxxxx</span></div>
+      <div class="bt s" style="margin-top:6px">Send OTP</div><div class="bt o" style="margin-top:5px">Continue with Google</div>
+      <div style="text-align:center;font-size:8px;margin-top:5px;color:#8A7559">Maybe later</div></div></div></div></div>
+      <div class="cap"><b data-n="05">Deferred sign-up</b>Asked after 5 cards, with points already at stake.</div></div>
+    <div class="wf"><div class="phone"><div class="scr parch"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="wc" style="background:var(--sindoor);color:#F5ECD9;border:0"><b style="color:var(--gold)">How it works</b><br>↑ Swipe up for next shloka<br>◎ Tap to go deeper<br>♡ Double tap to save<br>● Hold the mic to share your day</div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:5px"><div style="text-align:center;font-size:7.5px;letter-spacing:.1em;color:#4B3524">ADHYAY 2 · SHLOKA 47</div><div class="wk">कर्मण्येवाधिकारस्ते<br>मा फलेषु कदाचन</div><div class="wt">Your right is to action alone, never to its fruits.</div></div>
+      <div style="text-align:center;font-size:20px;color:var(--kesar)">↑</div></div><div class="nv"><span class="on"><i></i>Shloka</span><span class=""><i></i>Yatra</span><span class="mc"><i></i>Mann</span><span class=""><i></i>Sangha</span><span class=""><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="06">Coach marks</b>Four gestures over the first real card. Gone on first swipe.</div></div>
+  </div></div>
+
+  <div class="flow" id="f2"><div class="phones">
+    <div class="wf"><div class="phone"><div class="scr parch"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="tb"><span><span class="ch on">For You</span> <span style="color:#8A7559;font-size:9px">Kram · Topics</span></span><span>⌕ ▤</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:8.5px"><span>🔥 12 &nbsp; Nitya 3/5</span><span class="mp">◉ 1,240</span></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:5px;padding-right:22px">
+        <div style="text-align:center;font-size:7.5px;letter-spacing:.1em;color:#4B3524">ADHYAY 3 · KARMA YOGA · 21</div>
+        <div class="wk" style="font-size:12.5px">यद्यदाचरति श्रेष्ठस्<br>तत्तदेवेतरो जनः।<br>स यत्प्रमाणं कुरुते<br>लोकस्तदनुवर्तते॥</div>
+        <div class="wt">yad yad aacharati shreshthas…</div>
+        <div style="text-align:center;font-size:9px">Whatever leaders do, others follow.</div>
+        <div style="text-align:center"><span class="ch">Tap to go deeper</span></div></div>
+      <div class="rail"><span><i></i>Chant</span><span><i></i>Save</span><span><i></i>Share</span><span><i style="background:var(--gold)"></i>+2</span></div></div><div class="nv"><span class="on"><i></i>Shloka</span><span class=""><i></i>Yatra</span><span class="mc"><i></i>Mann</span><span class=""><i></i>Sangha</span><span class=""><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="07">Shloka card</b>One verse, full screen. Streak, daily progress, MP in a slim header.</div></div>
+    <div class="wf"><div class="phone"><div class="scr parch"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div style="opacity:.35;text-align:center"><div class="wk" style="font-size:11px">यद्यदाचरति श्रेष्ठस्…</div></div>
+      <div class="sheet" style="top:52px"><div class="grab"></div><div><span class="ch on">Shabdarth</span><span class="ch">Katha</span><span class="ch">Jeevan</span></div>
+      <div style="margin-top:6px;display:flex;flex-direction:column;gap:4px">
+        <div class="wc"><b style="font-family:var(--skt2)">यत् यत्</b> · yat yat · whatever</div><div class="wc"><b style="font-family:var(--skt2)">आचरति</b> · aacharati · does</div><div class="wc"><b style="font-family:var(--skt2)">श्रेष्ठः</b> · shreshthah · the best, a leader</div><div class="wc"><b style="font-family:var(--skt2)">प्रमाणम्</b> · pramaanam · standard</div><div class="wc"><b style="font-family:var(--skt2)">अनुवर्तते</b> · anuvartate · follows</div></div>
+      <div class="bt o" style="margin-top:7px">✦ Make this my Sankalp</div></div></div><div class="nv"><span class="on"><i></i>Shloka</span><span class=""><i></i>Yatra</span><span class="mc"><i></i>Mann</span><span class=""><i></i>Sangha</span><span class=""><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="08">Expand sheet</b>Word meaning, story, modern lesson. +3 MP.</div></div>
+    <div class="wf"><div class="phone"><div class="scr"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="tb"><span style="font-size:8px;color:#8A7559">CHECKPOINT · 3 of 4</span><span class="mp">+5</span></div>
+      <div class="wl" style="text-align:center;margin-top:8px">Quick check</div><div class="wt">From the shlokas you just read</div>
+      <div class="wc" style="text-align:center">In 3.21, what does <b style="font-family:var(--skt2)">प्रमाणम्</b> mean?</div>
+      <div class="wc">A. Proof of God</div><div class="wc" style="border-color:var(--green);background:#E7EEDD"><b>B. A standard others follow</b> ✓</div><div class="wc">C. Measurement of time</div>
+      <div class="wc" style="background:#F3E6CF;border:0;font-size:9px">Reflect: who sets the standard you follow? <span class="ch">Note +8</span></div>
+      <div class="bt s" style="margin-top:auto">Continue scrolling ↑</div></div><div class="nv"><span class="on"><i></i>Shloka</span><span class=""><i></i>Yatra</span><span class="mc"><i></i>Mann</span><span class=""><i></i>Sangha</span><span class=""><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="09">Checkpoint</b>Every 7 cards. Turns scrolling into recall.</div></div>
+    <div class="wf"><div class="phone"><div class="scr parch"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd" style="align-items:center;text-align:center;justify-content:center">
+      <div style="font-size:34px">🪔</div><div class="wl" style="font-size:20px">Nitya Path complete</div><div class="wt">13 days in a row</div>
+      <div style="display:flex;gap:3px;margin:6px 0"><span class="ch on">M</span><span class="ch on">T</span><span class="ch on">W</span><span class="ch on">T</span><span class="ch on">F</span><span class="ch on">S</span><span class="ch" style="border-color:var(--kesar)">S</span></div>
+      <div class="wc" style="width:100%;text-align:left"><div style="display:flex;justify-content:space-between"><span>Shlokas read</span><b>+18</b></div><div style="display:flex;justify-content:space-between"><span>Checkpoints</span><b>+10</b></div><div style="display:flex;justify-content:space-between"><span>Daily goal</span><b>+15</b></div><div style="display:flex;justify-content:space-between;border-top:1px solid #D7C29B;margin-top:3px;padding-top:3px"><span>Today</span><b style="color:var(--kesar)">+43 MP</b></div></div>
+      <div style="width:100%"><div style="font-size:8px;text-align:left">Shravak → Sadhak · 260 MP to go</div><div class="bar"><i style="width:78%"></i></div></div>
+      <div class="bt s" style="width:100%">Share my streak</div><div style="font-size:8px;color:#4B3524">Keep scrolling (no more points today, just peace)</div></div></div></div>
+      <div class="cap"><b data-n="10">Daily reward</b>Itemised MP so rules feel fair, then "you're done".</div></div>
+    <div class="wf"><div class="phone"><div class="scr night"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="tb"><span>✕</span><span>Share card</span><span style="color:var(--kesar2)">Save</span></div>
+      <div style="flex:1;border-radius:8px;background:radial-gradient(ellipse at 50% 40%,#F7EBD0,#E6CF9F 75%,#D2B47A);color:#2A1C11;display:flex;flex-direction:column;justify-content:center;padding:8px;text-align:center;gap:4px">
+        <div class="wk" style="font-size:12px">कर्मण्येवाधिकारस्ते<br>मा फलेषु कदाचन</div><div style="font-size:9px;font-style:italic">Do your work. Let go of the result.</div>
+        <div style="height:40px;margin:4px 14px;background:repeating-linear-gradient(45deg,#E2D0AA,#E2D0AA 3px,#EAD9B6 3px,#EAD9B6 6px);border-radius:5px;display:grid;place-items:center;font-size:8px;color:#8A7559">chariot art</div><div style="font-size:7.5px;color:var(--sindoor)">Gita 2.47 · DharmaScroll</div></div>
+      <div style="text-align:center"><span class="ch on">Parchment</span><span class="ch">Madhubani</span><span class="ch">Ratri</span></div>
+      <div style="display:flex;justify-content:space-around;font-size:8.5px;color:#E8D6B4"><span>Insta Story</span><span>WhatsApp</span><span>Status</span><span>More</span></div></div></div></div>
+      <div class="cap"><b data-n="11">Share card</b>9:16 card with watermark and deep link. Main viral loop.</div></div>
+    <div class="wf"><div class="phone"><div class="scr"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="tb"><span>‹ Library</span><span>⌕</span></div>
+      <div class="wc" style="color:#8A7559">⌕ Search "anger", "2.47", "Arjuna"</div>
+      <div><span class="ch on">Bhagavad Gita</span><span class="ch">Ramayana · soon</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span><b>1</b> Arjuna Vishada Yoga</span><span style="font-size:8px">47 · read</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span><b>2</b> Sankhya Yoga</span><span style="font-size:8px">72 · 60%</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span><b>3</b> Karma Yoga</span><span style="font-size:8px">43 · 12%</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span><b>4</b> Jnana Karma Sannyasa</span><span style="font-size:8px">42</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span><b>5</b> Karma Sannyasa Yoga</span><span style="font-size:8px">29</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span><b>6</b> Dhyana Yoga</span><span style="font-size:8px">47</span></div>
+      <div style="text-align:center;font-size:8px;color:#8A7559">… 18 chapters · 700 shlokas</div></div><div class="nv"><span class="on"><i></i>Shloka</span><span class=""><i></i>Yatra</span><span class="mc"><i></i>Mann</span><span class=""><i></i>Sangha</span><span class=""><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="12">Library</b>Book mode with search and per-chapter progress.</div></div>
+  </div></div>
+
+  <div class="flow" id="f3"><div class="phones">
+    <div class="wf"><div class="phone"><div class="scr night"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd" style="align-items:center;text-align:center">
+      <div class="tb" style="width:100%"><span>Journal</span><span>Mann Darpan</span><span>ⓘ</span></div>
+      <div class="wl" style="color:var(--gold);margin-top:16px;font-size:19px">Aaj ka din kaisa tha?</div><div style="font-size:9px;color:#E8D6B4">Share a worry, a win, or anything in between.</div>
+      <div style="margin-top:6px"><span class="ch">😔 Low</span><span class="ch">😤 Angry</span><span class="ch">😟 Anxious</span><span class="ch">😊 Happy</span></div>
+      <div style="margin-top:auto;margin-bottom:12px;width:66px;height:66px;border-radius:50%;background:var(--kesar);box-shadow:0 0 0 10px rgba(232,120,42,.25),0 0 0 20px rgba(232,120,42,.1);display:grid;place-items:center;font-size:26px">🎙</div>
+      <div style="font-size:8.5px;color:#E8D6B4">Hold to speak · or <u>type instead</u></div><div style="font-size:7.5px;color:#A78E6E">🔒 Audio deleted after transcription</div></div><div class="nv"><span class=""><i></i>Shloka</span><span class=""><i></i>Yatra</span><span class="on mc"><i></i>Mann</span><span class=""><i></i>Sangha</span><span class=""><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="13">Mann Darpan home</b>Dark, calm, intimate. Big mic, typing fallback.</div></div>
+    <div class="wf"><div class="phone"><div class="scr night"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd" style="align-items:center;text-align:center">
+      <div style="color:var(--kesar2);font-size:9px;margin-top:6px;font-family:var(--mono)">● Listening · 0:38</div>
+      <svg viewBox="0 0 100 24" width="100%" height="34"><g fill="#E8782A"><rect x="4" y="9" width="3" height="6"/><rect x="10" y="6" width="3" height="12"/><rect x="16" y="3" width="3" height="18"/><rect x="22" y="7" width="3" height="10"/><rect x="28" y="1" width="3" height="22"/><rect x="34" y="5" width="3" height="14"/><rect x="40" y="8" width="3" height="8"/><rect x="46" y="2" width="3" height="20"/><rect x="52" y="6" width="3" height="12"/><rect x="58" y="4" width="3" height="16"/><rect x="64" y="9" width="3" height="6"/><rect x="70" y="3" width="3" height="18"/><rect x="76" y="7" width="3" height="10"/><rect x="82" y="5" width="3" height="14"/><rect x="88" y="9" width="3" height="6"/><rect x="94" y="10" width="3" height="4"/></g></svg>
+      <div style="background:rgba(255,255,255,.06);border-radius:7px;padding:8px;text-align:left;font-size:9.5px;color:#F3E6CF">"Aaj office mein review tha, manager ne sabke saamne bola ki mera kaam average hai. Itni mehnat ki thi… ab lag raha hai kuch bhi karne ka fayda nahi. Ghar aake gussa nikal gaya mummy pe…"</div>
+      <div style="font-size:8px;color:#A78E6E">Live transcript · tap to edit</div>
+      <div style="margin-top:auto;margin-bottom:10px;width:58px;height:58px;border-radius:50%;background:var(--red);display:grid;place-items:center;color:#fff;font-size:16px">■</div><div style="font-size:8.5px;color:#E8D6B4">Release to finish · max 2 min</div></div></div></div>
+      <div class="cap"><b data-n="14">Recording</b>Waveform and a streaming Hinglish transcript you can correct.</div></div>
+    <div class="wf"><div class="phone"><div class="scr night"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd" style="align-items:center;justify-content:center;text-align:center;gap:8px">
+      <div style="width:76px;height:76px;border-radius:50%;border:5px solid rgba(217,176,76,.25);border-top-color:var(--gold);display:grid;place-items:center;font-size:26px">🪷</div>
+      <div class="wl" style="color:var(--gold)">Finding your shloka…</div>
+      <div style="text-align:left;font-size:9.5px;color:#E8D6B4;line-height:1.8">✓ Heard you<br>✓ Feeling: hurt, unappreciated, anger<br>✓ Situation: work feedback, family<br>◌ Searching 700 shlokas</div>
+      <div style="font-size:8.5px;color:#A78E6E;font-style:italic;margin-top:10px">"Pause. Breathe in for 4… out for 6."</div></div></div></div>
+      <div class="cap"><b data-n="15">Processing</b>Shows what was understood. A breathing cue covers the 2 to 4 s wait.</div></div>
+    <div class="wf"><div class="phone"><div class="scr parch"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="tb"><span>✕</span><span style="font-size:8px;color:#8A7559">FOR YOUR DAY</span><span>▶ 🔊</span></div>
+      <div style="text-align:center;font-size:7.5px;color:#4B3524">ADHYAY 2 · SHLOKA 47</div>
+      <div class="wk" style="font-size:12px">कर्मण्येवाधिकारस्ते<br>मा फलेषु कदाचन।<br>मा कर्मफलहेतुर्भूर्<br>मा ते सङ्गोऽस्त्वकर्मणि॥</div>
+      <div class="wt">Your right is to your work, never to its fruits.</div>
+      <div class="wc"><b style="color:var(--sindoor)">Why this shloka</b><br>You put in real effort, and one opinion made it feel worthless. Krishna separates the effort, which is yours, from the verdict, which isn't. And he warns against the next trap: "kuch karne ka fayda nahi."</div>
+      <div style="display:flex;gap:4px;margin-top:auto"><div class="bt o" style="flex:1">Another shloka</div><div class="bt s" style="flex:1">What do I do? →</div></div></div></div></div>
+      <div class="cap"><b data-n="16">Your shloka</b>Verse, chant audio, and a two-line bridge from their words to the teaching.</div></div>
+    <div class="wf"><div class="phone"><div class="scr"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="tb"><span>‹</span><span>Jeevan Path</span><span class="mp">+15</span></div><div class="wl">For the next 24 hours</div>
+      <div class="wc"><b>1. Name your effort.</b> Write 3 things you did well on that project. They stay true whatever the review said.</div>
+      <div class="wc"><b>2. Ask, don't absorb.</b> Tomorrow, ask your manager for one specific thing to improve.</div>
+      <div class="wc"><b>3. Repair at home.</b> The anger reached Mummy, not the manager. A two-line sorry tonight.</div>
+      <div class="wc" style="background:#F3E6CF;border-color:var(--kesar)"><b style="color:var(--kesar)">✦ Today's Sankalp</b><br>"I'll speak calmly at home tonight."<div style="margin-top:3px"><span class="ch on">Remind 9 pm</span><span class="ch">Edit</span></div></div>
+      <div class="bt s" style="margin-top:auto">Take this Sankalp</div></div></div></div>
+      <div class="cap"><b data-n="17">Jeevan Path</b>Three concrete actions and a one-tap commitment.</div></div>
+    <div class="wf"><div class="phone"><div class="scr" style="background:#FBF6EA"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd" style="text-align:center;align-items:center">
+      <div style="font-size:28px;margin-top:12px">🤍</div><div class="wl">You don't have to carry this alone</div><div style="font-size:9.5px;color:#4B3524">What you shared sounds really heavy. Talking to someone trained can help right now.</div>
+      <div class="wc" style="width:100%;border-color:var(--red)"><b>Tele-MANAS (free, 24×7)</b><br>14416 &nbsp;or&nbsp; 1-800-891-4416</div>
+      <div class="bt" style="width:100%;background:var(--red)">Call now</div><div class="bt o" style="width:100%">Message someone I trust</div>
+      <div class="wc" style="width:100%;text-align:left;font-size:9px">If you're in immediate danger, call 112.</div>
+      <div style="font-size:8.5px;color:#8A7559;margin-top:auto">Stay here with a calming chant ▶</div></div></div></div>
+      <div class="cap"><b data-n="18">Crisis support</b>Bypasses the AI lesson and all game logic. Humans first.</div></div>
+  </div></div>
+
+  <div class="flow" id="f4"><div class="phones">
+    <div class="wf"><div class="phone"><div class="scr parch"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="tb"><span class="wl" style="font-size:14px">Gita Yatra</span><span>🔥 12 <span class="mp">◉ 1,240</span></span></div>
+      <div class="wc" style="background:var(--sindoor);color:#F5ECD9;border:0"><b style="color:var(--gold)">Adhyay 3 · Karma Yoga</b><br><span style="font-size:8.5px">Lesson 3 of 7 · Action without attachment</span></div>
+      <svg viewBox="0 0 100 120" width="100%" style="flex:1"><path d="M50 8 C 80 20, 80 38, 50 48 S 20 76, 50 86 S 80 108, 50 116" stroke="#C9B38E" stroke-width="3" fill="none" stroke-dasharray="1 4" stroke-linecap="round"/><g font-size="6" text-anchor="middle" font-family="IBM Plex Mono"><circle cx="50" cy="8" r="7" fill="#D9B04C"/><text x="50" y="10" fill="#fff">✓</text><circle cx="72" cy="27" r="7" fill="#D9B04C"/><text x="72" y="29" fill="#fff">✓</text><circle cx="50" cy="48" r="9" fill="#E8782A" stroke="#fff" stroke-width="1.5"/><text x="50" y="50" fill="#fff">▶</text><text x="74" y="50" fill="#7A1E18" font-weight="700">Start</text><circle cx="30" cy="67" r="7" fill="#E2D0AA"/><text x="30" y="69" fill="#8A7559">4</text><circle cx="50" cy="86" r="7" fill="#E2D0AA"/><text x="50" y="88" fill="#8A7559">5</text><circle cx="70" cy="102" r="7" fill="#E2D0AA"/><text x="70" y="104" fill="#8A7559">6</text><rect x="36" y="108" width="28" height="11" rx="2" fill="#7A1E18"/><text x="50" y="116" fill="#D9B04C">🏆 Ch 3</text></g></svg></div><div class="nv"><span class=""><i></i>Shloka</span><span class="on"><i></i>Yatra</span><span class="mc"><i></i>Mann</span><span class=""><i></i>Sangha</span><span class=""><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="19">Gita Yatra</b>18 chapters as a path. Each node is a 3-minute lesson and quiz.</div></div>
+    <div class="wf"><div class="phone"><div class="scr"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="tb"><span>‹</span><span>Moksh Points</span><span>ⓘ Rules</span></div>
+      <div class="wc" style="background:var(--sindoor);color:#F5ECD9;border:0;text-align:center"><div style="font-size:8px;color:var(--gold);letter-spacing:.1em">LEVEL 2 · SHRAVAK</div><div style="font-family:var(--disp);font-weight:900;font-size:26px;color:var(--gold)">1,240</div><div class="bar" style="background:#4A2A1E"><i style="width:78%;background:var(--gold)"></i></div><div style="font-size:8px;margin-top:3px">260 MP to Sadhak</div></div>
+      <div style="display:flex;gap:4px"><div class="wc" style="flex:1;text-align:center"><b>+312</b><br><span style="font-size:7.5px">this week</span></div><div class="wc" style="flex:1;text-align:center"><b>2</b><br><span style="font-size:7.5px">Vishram left</span></div><div class="wc" style="flex:1;text-align:center"><b>13</b><br><span style="font-size:7.5px">day streak</span></div></div>
+      <div style="font-weight:600;font-size:9px">Today</div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span>Sankalp kept</span><b class="plus">+25</b></div><div class="wc" style="display:flex;justify-content:space-between"><span>Mann Darpan entry</span><b class="plus">+15</b></div><div class="wc" style="display:flex;justify-content:space-between"><span>Yatra lesson 3.2</span><b class="plus">+20</b></div><div class="wc" style="display:flex;justify-content:space-between"><span>Speed-scroll pause</span><b style="color:#8A7559">0</b></div><div class="wc" style="display:flex;justify-content:space-between"><span>Yesterday's Sankalp, no check-in</span><b class="minus">−10</b></div></div><div class="nv"><span class=""><i></i>Shloka</span><span class=""><i></i>Yatra</span><span class="mc"><i></i>Mann</span><span class=""><i></i>Sangha</span><span class="on"><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="20">MP wallet</b>Transparent ledger of every gain and loss.</div></div>
+    <div class="wf"><div class="phone"><div class="scr"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="tb"><span class="wl" style="font-size:14px">Sangha</span><span>+ Invite</span></div>
+      <div><span class="ch on">Tulsi League</span><span class="ch">Parivar</span><span class="ch">Sakha</span></div>
+      <div class="wc" style="text-align:center;font-size:8.5px">Ends in 2d 6h · Top 7 rise to <b>Peepal</b></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span>1 &nbsp;Ananya S.</span><b>486</b></div><div class="wc" style="display:flex;justify-content:space-between"><span>2 &nbsp;Rohit K.</span><b>451</b></div><div class="wc" style="display:flex;justify-content:space-between;border-color:var(--kesar);background:#F7E6D3"><span>3 &nbsp;<b>You</b></span><b>412</b></div><div class="wc" style="display:flex;justify-content:space-between"><span>4 &nbsp;Meera P.</span><b>398</b></div><div class="wc" style="display:flex;justify-content:space-between"><span>5 &nbsp;Vikram J.</span><b>377</b></div>
+      <div class="wc" style="background:#E7EEDD;border-color:var(--green);font-size:9px"><b>Sakha: Papa</b> hasn't read today. <span class="ch on" style="background:var(--green);border-color:var(--green)">Nudge 🙏</span></div></div><div class="nv"><span class=""><i></i>Shloka</span><span class=""><i></i>Yatra</span><span class="mc"><i></i>Mann</span><span class="on"><i></i>Sangha</span><span class=""><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="21">Sangha</b>Weekly league on depth points only; family group and nudges.</div></div>
+    <div class="wf"><div class="phone"><div class="scr"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div style="display:flex;gap:8px;align-items:center"><div style="width:40px;height:40px;border-radius:50%;background:#E2D0AA;border:3px solid var(--gold)"></div><div><div class="wl">Kartik</div><div style="font-size:8.5px;color:#8A7559">Shravak · joined Nov 2026</div></div></div>
+      <div style="display:flex;gap:4px"><div class="wc" style="flex:1;text-align:center"><b>186</b><br><span style="font-size:7.5px">shlokas</span></div><div class="wc" style="flex:1;text-align:center"><b>2.4</b><br><span style="font-size:7.5px">chapters</span></div><div class="wc" style="flex:1;text-align:center"><b>9</b><br><span style="font-size:7.5px">Sankalps</span></div></div>
+      <div style="font-weight:600;font-size:9px">Badges</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center;font-size:7.5px"><div><div style="height:28px;width:28px;border-radius:50%;background:var(--gold);margin:auto"></div>Pratham</div><div><div style="height:28px;width:28px;border-radius:50%;background:var(--gold);margin:auto"></div>Arjuna's Q</div><div><div style="height:28px;width:28px;border-radius:50%;background:var(--kesar);margin:auto"></div>7-day</div><div><div style="height:28px;width:28px;border-radius:50%;background:#E2D0AA;margin:auto"></div>108 Mala</div></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span>♡ Saved shlokas</span><span>24 ›</span></div><div class="wc" style="display:flex;justify-content:space-between"><span>📓 Mann Darpan journal</span><span>11 ›</span></div><div class="wc" style="display:flex;justify-content:space-between"><span>📈 Mood over time</span><span>›</span></div><div class="wc" style="display:flex;justify-content:space-between"><span>⚙ Settings · Privacy</span><span>›</span></div></div><div class="nv"><span class=""><i></i>Shloka</span><span class=""><i></i>Yatra</span><span class="mc"><i></i>Mann</span><span class=""><i></i>Sangha</span><span class="on"><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="22">Profile</b>Stats, badges, saved verses, private journal.</div></div>
+    <div class="wf"><div class="phone"><div class="scr"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div class="tb"><span>‹ Journal</span><span>Nov 2026</span></div>
+      <div class="wc"><div style="display:flex;justify-content:space-between"><b>Thu, 5 Nov</b><span>😤</span></div><div style="font-size:9px">Office review, felt unappreciated…</div><div style="font-size:8.5px;color:var(--sindoor)">→ 2.47 · Sankalp kept ✓</div></div>
+      <div class="wc"><div style="display:flex;justify-content:space-between"><b>Tue, 3 Nov</b><span>😊</span></div><div style="font-size:9px">Cleared my DSA round!</div><div style="font-size:8.5px;color:var(--sindoor)">→ 2.48 samatvam · partly</div></div>
+      <div class="wc"><div style="display:flex;justify-content:space-between"><b>Sun, 1 Nov</b><span>😟</span></div><div style="font-size:9px">Couldn't sleep, worried about future</div><div style="font-size:8.5px;color:var(--sindoor)">→ 6.5 · uplift yourself</div></div>
+      <div class="wc" style="background:#F3E6CF;border:0"><b style="color:var(--sindoor)">Your month</b><svg viewBox="0 0 100 22" width="100%" height="30"><polyline points="2,16 14,12 26,18 38,10 50,14 62,8 74,11 86,6 98,9" fill="none" stroke="#E8782A" stroke-width="1.5"/></svg><div style="font-size:8.5px">Calmer on days you kept your Sankalp.</div></div></div><div class="nv"><span class=""><i></i>Shloka</span><span class=""><i></i>Yatra</span><span class="on mc"><i></i>Mann</span><span class=""><i></i>Sangha</span><span class=""><i></i>Profile</span></div></div></div>
+      <div class="cap"><b data-n="23">Journal</b>Private history of entries, matched shlokas, outcomes.</div></div>
+    <div class="wf"><div class="phone"><div class="scr parch"><div class="notch"></div><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="bd">
+      <div style="text-align:right">✕</div><div class="wl" style="text-align:center;font-size:20px">DharmaScroll Pro</div><div class="wt">Go deeper, every day</div>
+      <div class="wc" style="font-size:9.5px;line-height:1.7">✓ Unlimited Mann Darpan (free: 3/week)<br>✓ Ask about any shloka<br>✓ Audio Satsang library<br>✓ All illustrated decks<br>✓ Unlimited streak shield<br>✓ Offline library, no ads ever</div>
+      <div class="wc" style="border:2px solid var(--kesar);display:flex;justify-content:space-between;align-items:center"><span><b>Yearly</b> · ₹699<br><span style="font-size:8px;color:#8A7559">₹58/month · 7 days free</span></span><span class="ch on">Best</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span><b>Monthly</b> · ₹99</span><span>○</span></div>
+      <div class="wc" style="display:flex;justify-content:space-between"><span><b>Parivar</b> · ₹999/yr, 5 people</span><span>○</span></div>
+      <div class="bt s" style="margin-top:auto">Start 7-day free trial</div><div style="text-align:center;font-size:7.5px;color:#8A7559">UPI Autopay · cancel anytime</div></div></div></div>
+      <div class="cap"><b data-n="24">Pro paywall</b>Shown at the free Mann Darpan limit. Never blocks the feed.</div></div>
+  </div></div>
+</div></section>
+<section id="market"><div class="wrap">
+  <div class="sechead"><div><div class="eyebrow">Market research</div><h2>Money is flowing. Engagement is empty.</h2></div><p>India funds puja commerce and astrology. The daily reading and reflection slot that YouVersion, Hallow and Scroll the Bible own for Christians has no Hindu owner yet.</p></div>
+  <div class="grid g2">
+    <div class="chart"><h3>Indian faith market</h3><div class="sub">USD billions · 2023 base, 8.82% CAGR projection (Inc42 / industry study)</div>
+      <svg viewBox="0 0 420 200" role="img" aria-label="Bar chart: Indian faith market grows from 58.6 billion dollars in 2023 to about 90 billion in 2028">
+        <g stroke="#D7C29B" stroke-width="1"><line x1="40" y1="160" x2="410" y2="160"/><line x1="40" y1="110" x2="410" y2="110" stroke-dasharray="3 3"/><line x1="40" y1="60" x2="410" y2="60" stroke-dasharray="3 3"/></g>
+        <text x="8" y="164">0</text><text x="8" y="114">50</text><text x="2" y="64">100</text>
+        <g fill="#7A1E18" stroke="#1A0F0A" stroke-width="2">
+          <rect x="55" y="101.4" width="44" height="58.6"/><rect x="115" y="96.2" width="44" height="63.8"/><rect x="175" y="90.6" width="44" height="69.4"/><rect x="235" y="84.5" width="44" height="75.5"/><rect x="295" y="77.8" width="44" height="82.2"/></g>
+        <rect x="355" y="70.6" width="44" height="89.4" fill="#E8782A" stroke="#1A0F0A" stroke-width="2"/>
+        <g text-anchor="middle"><text x="77" y="178">2023</text><text x="137" y="178">2024</text><text x="197" y="178">2025</text><text x="257" y="178">2026</text><text x="317" y="178">2027</text><text x="377" y="178">2028</text>
+        <text x="77" y="95" font-weight="600">58.6</text><text x="137" y="90" font-weight="600">63.8</text><text x="197" y="84" font-weight="600">69.4</text><text x="257" y="78" font-weight="600">75.5</text><text x="317" y="71" font-weight="600">82.2</text><text x="377" y="64" font-weight="600">89.4</text></g>
+      </svg></div>
+    <div class="chart"><h3>What the leaders earn</h3><div class="sub">Annual revenue, USD millions (estimates: Appfigures, TechCrunch, Inc42)</div>
+      <svg viewBox="0 0 420 200" role="img" aria-label="Horizontal bars: Hallow about 40 million, Sri Mandir about 8 million, Scroll the Bible under 1 million">
+        <g font-weight="600"><text x="10" y="40">Hallow (US prayer app)</text><text x="10" y="95">Sri Mandir (India, pujas)</text><text x="10" y="150">Scroll the Bible (2025 launch)</text></g>
+        <g stroke="#1A0F0A" stroke-width="2"><rect x="10" y="48" width="380" height="24" fill="#E8782A"/><rect x="10" y="103" width="76" height="24" fill="#7A1E18"/><rect x="10" y="158" width="12" height="24" fill="#D9B04C"/></g>
+        <text x="300" y="65" fill="#1A0F0A" font-weight="600">~$40M net, 2025</text><text x="94" y="120">~$8M run rate (₹70 Cr FY25)</text><text x="30" y="175">&lt; $1M · 4.8★ · 4.9K ratings</text>
+      </svg></div>
+    <div class="chart"><h3>Sri Mandir ARPU: India vs diaspora</h3><div class="sub">Annual revenue per user, ₹ (TechCrunch, June 2025)</div>
+      <svg viewBox="0 0 420 200" role="img" aria-label="India ARPU 700 rupees versus diaspora 7000 rupees">
+        <g stroke="#1A0F0A" stroke-width="2"><rect x="70" y="146" width="110" height="14" fill="#7A1E18"/><rect x="240" y="20" width="110" height="140" fill="#E8782A"/></g>
+        <line x1="40" y1="160" x2="400" y2="160" stroke="#1A0F0A" stroke-width="2"/>
+        <g text-anchor="middle"><text x="125" y="180">India users</text><text x="295" y="180">Diaspora users</text><text x="125" y="138" font-weight="600">₹600 to 800</text><text x="295" y="12" font-weight="600">~₹7,000</text></g>
+        <text x="60" y="60" fill="#7A1E18" font-weight="600">10x</text><text x="60" y="74" fill="#4B3524">Design for NRIs</text><text x="60" y="88" fill="#4B3524">from day one</text>
+      </svg></div>
+    <div class="chart"><h3>Gamified habits scale</h3><div class="sub">Duolingo daily active users, millions (company filings)</div>
+      <svg viewBox="0 0 420 200" role="img" aria-label="Line chart: Duolingo daily active users from 16 million in 2022 to 59 million in 2026">
+        <g stroke="#D7C29B" stroke-dasharray="3 3"><line x1="40" y1="40" x2="410" y2="40"/><line x1="40" y1="100" x2="410" y2="100"/></g><line x1="40" y1="160" x2="410" y2="160" stroke="#1A0F0A" stroke-width="2"/>
+        <text x="8" y="164">0</text><text x="8" y="104">30</text><text x="8" y="44">60</text>
+        <polyline points="70,127 150,106 230,55 310,47 390,43" fill="none" stroke="#E8782A" stroke-width="4"/>
+        <g fill="#7A1E18" stroke="#1A0F0A" stroke-width="2"><circle cx="70" cy="127" r="5"/><circle cx="150" cy="106" r="5"/><circle cx="230" cy="55" r="5"/><circle cx="310" cy="47" r="5"/><circle cx="390" cy="43" r="5"/></g>
+        <g text-anchor="middle"><text x="70" y="180">Q4'22</text><text x="150" y="180">Q4'23</text><text x="230" y="180">Q1'25</text><text x="310" y="180">Q4'25</text><text x="390" y="180">Q2'26</text>
+        <text x="70" y="118">16.3</text><text x="150" y="97">26.9</text><text x="230" y="46">46.6</text><text x="310" y="38">52.7</text><text x="390" y="34" font-weight="600">58.7</text></g>
+        <text x="200" y="140" fill="#4B3524">10M+ users hold a 365-day streak</text>
+      </svg></div>
+  </div>
+  <h3 style="margin:40px 0 14px;color:var(--fg)">Feature matrix</h3>
+  <div class="comp"><table>
+    <tr><th>Capability</th><th>Scroll the Bible</th><th>Vessel</th><th>Hallow</th><th>Sri Mandir</th><th>GitaGPT</th><th class="us">DharmaScroll</th></tr>
+    <tr><td>Full-screen swipe feed</td><td class="y">✓</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="us y">✓</td></tr>
+    <tr><td>Hindu scripture, Sanskrit + Hindi</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td>partial</td><td class="y">✓</td><td class="us y">✓</td></tr>
+    <tr><td>Voice: speak feelings, get scripture</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td>text only</td><td class="us y">✓</td></tr>
+    <tr><td>Action plan and follow-up</td><td class="n">–</td><td class="y">✓</td><td>partial</td><td class="n">–</td><td class="n">–</td><td class="us y">✓</td></tr>
+    <tr><td>Points, levels, leagues</td><td>progress</td><td>habits</td><td>streaks</td><td class="n">–</td><td class="n">–</td><td class="us y">✓</td></tr>
+    <tr><td>Structured 18-chapter course</td><td>plans</td><td class="n">–</td><td class="y">✓</td><td class="n">–</td><td class="n">–</td><td class="us y">✓</td></tr>
+    <tr><td>Accountability partner</td><td>comments</td><td class="y">✓</td><td class="y">✓</td><td class="n">–</td><td class="n">–</td><td class="us y">✓</td></tr>
+    <tr><td>Retrieval-grounded AI (no "I am Krishna")</td><td>OpenAI chat</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">risky</td><td class="us y">✓</td></tr>
+  </table></div>
+  <div class="grid g3" style="margin-top:30px">
+    <div class="feat"><span class="tag">Persona</span><h3>Riya, 22 · Pune</h3><p>Engineering student, 4+ hours a day on Instagram. Placement anxiety, screen-time guilt. Would never open a dated "religious" app. Hooks: feed aesthetic, streaks, Mann Darpan at 1 am.</p></div>
+    <div class="feat"><span class="tag">Persona</span><h3>Amit, 34 · Lucknow</h3><p>Bank manager, one child. Work stress, little time, wants to finally finish the Gita in Hindi. Hooks: 18-day Yatra, morning audio, family league with his parents.</p></div>
+    <div class="feat"><span class="tag">Persona</span><h3>Priya, 29 · New Jersey</h3><p>Second-gen NRI, can't read Devanagari, wants roots for future kids. Hooks: pronunciation and audio, story context, pays in USD without blinking.</p></div>
+  </div>
+</div></section>
+
+<section id="arch"><div class="wrap">
+  <div class="sechead"><div><div class="eyebrow">System architecture</div><h2>Boring stack, sharp edges</h2></div><p>One mobile codebase, a managed Postgres, a small Python AI service, a CDN for all static content. The feed works offline; only Mann Darpan and sync touch the network.</p></div>
+  <div class="arch" style="box-shadow:var(--shd)">
+    <div class="layer"><div class="k">Client · React Native (Expo)</div><div class="boxes"><span class="hot">Feed + Reader (FlashList, Reanimated)</span><span class="hot">Mann Darpan (mic, WebSocket)</span><span>Game engine (optimistic MP)</span><span>Offline store (SQLite, 700 verses, ~3 MB)</span><span>Audio player (cached)</span><span>Widgets + push (FCM / APNs)</span></div></div>
+    <div class="layer"><div class="k">Edge</div><div class="boxes"><span>Cloudflare CDN: audio, art, verse JSON</span><span>API gateway, rate limit, JWT auth</span><span>RevenueCat (Play Billing + UPI Autopay, App Store)</span></div></div>
+    <div class="layer d"><div class="k">Backend</div><div class="boxes"><span>Supabase: Auth (phone OTP, Google), Postgres + RLS, Storage, Edge Functions (game rules)</span><span>AI service: FastAPI on Cloud Run / Fly.io Mumbai (safety → retrieve → compose → verify)</span><span>Workers: streak rollover per timezone, league reset, decay, push (pg_cron + Inngest)</span></div></div>
+    <div class="layer"><div class="k">Data</div><div class="boxes"><span>Postgres: users, events, append-only MP ledger</span><span>pgvector: verse situation embeddings</span><span>PostHog analytics + flags · Sentry</span><span>Directus CMS for scholars</span></div></div>
+    <div class="layer"><div class="k">AI providers (swappable)</div><div class="boxes"><span class="hot">STT: Sarvam Saaras v3 realtime (₹30 / audio hour)</span><span>LLM: fast model for tags, strong model for lesson</span><span class="hot">TTS: Sarvam Bulbul v3 (chants always pre-recorded)</span><span>Embeddings: multilingual (bge-m3)</span></div></div>
+  </div>
+  <div class="grid g3" style="margin-top:34px">
+    <div class="dark"><div class="eyebrow">Principle</div><h3 style="margin-top:8px">Server-authoritative points</h3><p style="color:var(--fg2);margin-top:8px;font-size:15px">Client shows optimistic MP. The server validates every event, applies daily caps and anti-gaming rules, and writes an append-only ledger with a rule version. Every point is auditable.</p></div>
+    <div class="dark"><div class="eyebrow">Principle</div><h3 style="margin-top:8px">Retrieval before generation</h3><p style="color:var(--fg2);margin-top:8px;font-size:15px">Hybrid score: 0.5 tag overlap + 0.4 vector similarity + 0.1 freshness, reranked to top 3. Target: top-1 accepted by a scholar on 80% of a 500-entry gold set, top-3 on 95%.</p></div>
+    <div class="dark"><div class="eyebrow">Cost</div><h3 style="margin-top:8px">₹2.6 to 3.4 per voice session</h3><p style="color:var(--fg2);margin-top:8px;font-size:15px">STT ₹0.50, tagging ₹0.10, lesson ₹0.50 to 1.20, rerank ₹0.05, TTS ₹1.50. Text-first answers halve it. That is why Mann Darpan, not the feed, is the paywall lever.</p></div>
+  </div>
+</div></section>
+
+<section id="plan"><div class="wrap">
+  <div class="sechead"><div><div class="eyebrow">Implementation plan</div><h2>Zero to launch in 16 weeks</h2></div><p>Content and tagging start on day one because the Verse Situation Index is the slowest thing to build and the hardest thing to copy.</p></div>
+  <div class="road">
+    <div class="ph"><div class="w">Weeks 1 to 2</div><h3>Foundations</h3><ul><li>Emotion and situation taxonomy (~40 + ~60)</li><li>Scholar onboarded, brand + design system</li><li>10 key screens in Figma</li><li>Sarvam realtime STT latency spike</li></ul></div>
+    <div class="ph on"><div class="w">Weeks 3 to 10</div><h3>Build MVP</h3><ul><li>Offline feed, expand sheet, checkpoints, share cards</li><li>Phone OTP, MP ledger, streaks, Vishram</li><li>Mann Darpan v1 on ~200 tagged verses</li><li>Sankalp, Yatra Ch 1 to 3, push, widget</li></ul></div>
+    <div class="ph"><div class="w">Weeks 11 to 14</div><h3>Beta</h3><ul><li>500 users from waitlist and campus</li><li>Red-team suite (300+ prompts) in CI</li><li>All 700 verses tagged</li><li>Payments via RevenueCat, funnels</li></ul></div>
+    <div class="ph"><div class="w">Weeks 15 to 16</div><h3>Launch</h3><ul><li>Store listing + ASO</li><li>30 to 50 micro-creators</li><li>18-day Gita Yatra goes live on a festival</li><li>Gate: D7 retention ≥ 20%</li></ul></div>
+  </div>
+  <div class="grid g2" style="margin-top:34px">
+    <div class="plate"><div class="eyebrow">MVP budget (lean, INR)</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:15px">
+        <tr><td style="padding:8px 0;border-bottom:2px solid #D7C29B">Engineering, 2 devs × 4 months</td><td class="mono" style="text-align:right;border-bottom:2px solid #D7C29B">₹6 to 10 L</td></tr>
+        <tr><td style="padding:8px 0;border-bottom:2px solid #D7C29B">Design</td><td class="mono" style="text-align:right;border-bottom:2px solid #D7C29B">₹1.5 to 2.5 L</td></tr>
+        <tr><td style="padding:8px 0;border-bottom:2px solid #D7C29B">Scholar: own translations, lessons, tags</td><td class="mono" style="text-align:right;border-bottom:2px solid #D7C29B">₹2 to 4 L</td></tr>
+        <tr><td style="padding:8px 0;border-bottom:2px solid #D7C29B">Illustrations (60) + chant audio (700 × 2)</td><td class="mono" style="text-align:right;border-bottom:2px solid #D7C29B">₹3 to 6 L</td></tr>
+        <tr><td style="padding:8px 0;border-bottom:2px solid #D7C29B">Infra + AI for beta</td><td class="mono" style="text-align:right;border-bottom:2px solid #D7C29B">₹0.5 L</td></tr>
+        <tr><td style="padding:8px 0;border-bottom:2px solid #D7C29B">Launch marketing</td><td class="mono" style="text-align:right;border-bottom:2px solid #D7C29B">₹3 to 6 L</td></tr>
+        <tr><td style="padding:10px 0;font-weight:700">Total</td><td class="mono" style="text-align:right;font-weight:700">₹16 to 29 L</td></tr>
+      </table></div>
+    <div class="plate"><div class="eyebrow">Risks we design around</div>
+      <div style="display:grid;gap:10px;margin-top:12px;font-size:15px">
+        <div style="border:2px solid var(--ink);padding:10px 12px;background:#FBE9D4"><b>AI says something harmful about religion, caste, violence.</b> Retrieval-only verses, excluded-verse list, persona that never speaks as God, red-team in CI, human review.</div>
+        <div style="border:2px solid var(--ink);padding:10px 12px;background:#FBE9D4"><b>Copycats in weeks.</b> Own translations and situation index, Hinglish voice quality, leagues and family groups, festival brand moments.</div>
+        <div style="border:2px solid var(--ink);padding:10px 12px;background:#FFF7E6"><b>Copyright on translations.</b> Most GitHub Gita datasets bundle copyrighted commentaries; bhagavadgita.io's API is non-commercial only. We commission our own.</div>
+        <div style="border:2px solid var(--ink);padding:10px 12px;background:#FFF7E6"><b>Becomes another addictive scroll.</b> Daily point caps, checkpoints, speed-scroll pause, a "you're done for today" moment, session time tracked as a guardrail.</div>
+      </div></div>
+  </div>
+  <h3 style="margin:44px 0 18px;color:var(--fg)">Free to scroll, pay to go deeper</h3>
+  <div class="grid g3">
+    <div class="price"><div class="eyebrow" style="color:var(--sindoor)">Free · forever</div><div class="amt">₹0</div><ul><li>Full feed, all 700 shlokas, all languages</li><li>Expand sheet, checkpoints, share cards</li><li>Yatra chapters 1 to 6</li><li>Mann Darpan 3× a week</li><li>Points, levels, leagues, 2 Vishram days</li></ul></div>
+    <div class="price hot"><div class="eyebrow">Pro</div><div class="amt">₹699<small>/year · or ₹99/mo</small></div><ul><li>Unlimited Mann Darpan with voice</li><li>All 18 chapters + seasonal Yatras</li><li>Ask about any shloka</li><li>Audio Satsang library</li><li>Unlimited streak shield, offline audio</li></ul><div class="mono" style="font-size:12px;margin-top:10px;color:var(--gold)">DIASPORA: $34.99/yr via regional pricing</div></div>
+    <div class="price"><div class="eyebrow" style="color:var(--sindoor)">Parivar</div><div class="amt">₹999<small>/year</small></div><ul><li>Pro for up to 5 family members</li><li>Private family Sangha, shared streak flame</li><li>Kids mode (later)</li></ul></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div><div class="skt">उद्धरेदात्मनात्मानं नात्मानमवसादयेत्।</div><p style="color:var(--fg2);margin-top:8px;font-style:italic">Uddhared aatmanaatmaanam, naatmaanam avasaadayet. Lift yourself by your own self; do not let yourself sink. Gita 6.5</p><div style="margin-top:22px" class="logo"><i>ॐ</i>DharmaScroll</div><small style="margin-top:8px">Product blueprint v1.0 · November 2026 · Built from the full market research PDF.<br>Figures are third-party estimates; verify pricing before committing budgets.</small></div>
+  <div><div class="eyebrow" style="margin-bottom:10px">Sources</div><div class="srcs">
+    <a href="https://apps.apple.com/app/id6756558351">Scroll the Bible, App Store</a><br><a href="https://learnofchrist.com/resources/scroll-the-bible">Scroll the Bible review</a><br><a href="https://appgoblin.info/apps/6786153647">Vessel: Body · Mind · Spirit</a><br><a href="https://play.google.com/store/apps/details?id=com.janus.scroll">Sown, Google Play</a><br><a href="https://appfigures.com/resources/insights/hallow-lent-surge-prayer-app-revenue">Hallow revenue, Appfigures</a><br><a href="https://techcrunch.com/2025/06/30/sri-mandir-keeps-investors-hooked-as-digital-devotion-grows">Sri Mandir, TechCrunch</a><br><a href="https://inc42.com/startups/can-appsforbharat-build-the-uber-or-airbnb-for-indias-spiritual-tech-market/">AppsForBharat model, Inc42</a><br><a href="https://inc42.com/features/decoding-the-cosmic-rise-of-indian-spiritual-tech-startups">Indian faith market, Inc42</a><br><a href="https://www.cbc.ca/amp/1.6896628">GitaGPT bots, CBC / Rest of World</a><br><a href="https://pulse2.com/duolingo-daily-active-users-reach-58-7-million-as-retention-hits-record-84-and-social-accounts-top-1-billion-organic-impressions/">Duolingo Q2 2026</a><br><a href="https://blog.duolingo.com/improving-the-streak">Duolingo streak research</a><br><a href="https://www.dqindia.com/data-and-ai/sarvam-ai-launches-audio-model-for-22-indian-languages-11071691">Sarvam pricing</a><br><a href="https://bhagavadgita.io/copyright">BhagavadGita.io licensing</a>
+  </div></div>
+</div></footer>
+
+<script>
+(function(){
+  // wireframe tabs
+  var tabs=document.querySelectorAll('.tabs [role=tab]');
+  tabs.forEach(function(t){t.addEventListener('click',function(){
+    tabs.forEach(function(x){x.setAttribute('aria-selected','false')});t.setAttribute('aria-selected','true');
+    document.querySelectorAll('.flow').forEach(function(f){f.classList.toggle('on',f.id===t.dataset.f)});
+  })});
+  // counters
+  var nums=document.querySelectorAll('[data-count]'),done=false;
+  function run(){ if(done)return; done=true; nums.forEach(function(el){
+    var end=parseFloat(el.dataset.count),pre=el.dataset.pre||'',suf=el.dataset.suf||'',dec=(String(el.dataset.count).split('.')[1]||'').length,t0=null;
+    function step(ts){ if(!t0)t0=ts; var p=Math.min(1,(ts-t0)/1200); p=1-Math.pow(1-p,3); el.textContent=pre+(end*p).toFixed(dec)+suf; if(p<1)requestAnimationFrame(step);}
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=pre+end.toFixed(dec)+suf}else requestAnimationFrame(step);
+  })}
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(e){if(e.some(function(x){return x.isIntersecting}))run()});io.observe(document.getElementById('why'))}else run();
+  // mann darpan demo
+  var D={
+    hurt:{said:'"Aaj office mein review tha, manager ne sabke saamne bola ki mera kaam average hai. Itni mehnat ki thi… ab lag raha hai kuch bhi karne ka fayda nahi. Ghar aake gussa nikal gaya mummy pe."',tags:'hurt · unappreciated · anger · work · family',ref:'Adhyay 2 · Shloka 47',skt:'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।',pron:'Karmanye vaadhikaaraste, maa phaleshu kadaachana',why:'You put in real effort, and one opinion made it feel worthless. Krishna separates the effort, which is yours, from the verdict, which isn\'t. And he warns against the next trap: "kuch karne ka fayda nahi."',acts:['Name your effort. Write 3 things you did well on that project. They stay true whatever the review said.','Ask, don\'t absorb. Tomorrow, ask your manager for one specific thing to improve.','Repair at home. The anger reached Mummy, not the manager. A two-line sorry tonight.'],sank:'I\'ll speak calmly at home tonight.'},
+    anx:{said:'"Placements are in 3 months and I haven\'t even started DSA properly. Everyone on LinkedIn has offers already. I keep making study plans and not following them."',tags:'fear of failure · comparison · exam · paralysis',ref:'Adhyay 6 · Shloka 5',skt:'उद्धरेदात्मनात्मानं नात्मानमवसादयेत्।',pron:'Uddhared aatmanaatmaanam, naatmaanam avasaadayet',why:'The plan-making-then-abandoning loop is your own mind being its own enemy. The verse doesn\'t say "try harder"; it says choose which voice gets to drive.',acts:['Shrink the plan to one thing: 2 problems today, not a 90-day roadmap.','Mute LinkedIn for 7 days. Comparison is the fuel for the sinking voice.','Tonight, write one sentence your "bandhu" (friend) self would say to you.'],sank:'Two DSA problems before I open any social app today.'},
+    low:{said:'"Mera dost got into Google and I\'m happy for him but honestly I feel so behind. Same college, same branch. Kya kami hai mujhme?"',tags:'envy · low self-worth · comparison · friendship',ref:'Adhyay 3 · Shloka 35',skt:'श्रेयान्स्वधर्मो विगुणः परधर्मात्स्वनुष्ठितात्।',pron:'Shreyaan swadharmo vigunah, paradharmaat swanushthitaat',why:'"Better your own path done imperfectly than someone else\'s done well." His path is not your measuring stick. The verse gives you permission to run your own race.',acts:['Congratulate him properly, out loud. Envy shrinks when it\'s spoken over.','List what you actually want in 5 years. If it isn\'t his job, stop grading yourself on it.','Pick one skill that is yours and do 30 minutes of it today.'],sank:'I\'ll message him a real congratulations, then do 30 min on my own thing.'},
+    joy:{said:'"I CLEARED THE DSA ROUND! Final interview next week. I can\'t sit still, I want to tell everyone."',tags:'joy · pride · success · anticipation',ref:'Adhyay 2 · Shloka 48',skt:'सिद्ध्यसिद्ध्योः समो भूत्वा समत्वं योग उच्यते॥',pron:'Siddhyasiddhyoh samo bhootvaa, samatvam yoga uchyate',why:'Celebrate fully. Then notice: the same you who cleared this also failed two before. Samatvam means the win doesn\'t become your identity any more than the losses did. That keeps next week\'s nerves small.',acts:['Tell three people who were there for the failed rounds too.','Write down what actually worked in prep, before the memory gets rosy.','Tomorrow, one normal study session. Momentum, not euphoria.'],sank:'I\'ll enjoy tonight and do one normal session tomorrow.'}
+  };
+  var out=document.getElementById('out'),said=document.getElementById('said');
+  function show(k){var d=D[k];said.textContent=d.said;
+    out.innerHTML='<div class="eyebrow" style="color:var(--sindoor)">Understood: '+d.tags+'</div><div class="ref" style="margin:6px 0 0">'+d.ref+'</div><div class="skt">'+d.skt+'</div><div class="tr" style="margin-top:6px">'+d.pron+'</div><div class="kv"><div class="k">Why this shloka</div><div class="v">'+d.why+'</div></div><div class="kv"><div class="k">Jeevan Path · next 24 hours</div><div class="steps">'+d.acts.map(function(a,i){return '<div><b>'+(i+1)+'</b>'+a+'</div>'}).join('')+'</div></div><div class="sank">✦ Sankalp: "'+d.sank+'" <span class="mono" style="font-weight:500;font-size:12px"> · remind 9 pm · +15 MP</span></div>';}
+  document.querySelectorAll('.mood').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.mood').forEach(function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');show(b.dataset.m)})});
+  show('hurt');
+})();
+</script>
+</body></html>
