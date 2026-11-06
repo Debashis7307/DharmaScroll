@@ -1,0 +1,85 @@
+name: Build
+
+# Every push to main produces a downloadable APK. Pull requests get the same
+# checks but publish nothing, so a broken branch cannot ship a binary.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Read-only: the workflow uploads build artifacts, never commits back.
+permissions:
+  contents: read
+
+# A second push cancels the first run instead of queueing behind it. Nobody
+# wants the APK from three commits ago.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned, not `stable`: a Flutter release landing mid-week should not be able
+  # to turn a green build red without a commit. Bump it deliberately.
+  FLUTTER_VERSION: 3.47.8
+
+jobs:
+  check:
+    name: Analyze and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+  apk:
+    name: Release APK
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      # Flutter drives the Android build through Gradle, which needs a JDK on
+      # the runner before the Flutter toolchain is installed.
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Dependencies
+        run: flutter pub get
+
+      # One APK per ABI: the arm64 build is a third of the size of a fat APK,
+      # which matters when every upgrade is a manual download.
+      - name: Build release APKs
+        run: flutter build apk --release --split-per-abi
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-${{ github.sha }}
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error
+          retention-days: 14
